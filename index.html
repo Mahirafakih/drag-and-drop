@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+  integrity="sha512-..."
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Hi, Drag and Drop the Elements!</h1>
+    <div class="container">
+        <div id="left">
+            <div class="list" draggable="true">Drag Me</div>
+            <button class="list" draggable="true">Drag me </button>
+            <img src="image-sample.jpeg" class="list" draggable="true" width="
+            50 " height="50"></img>
+        </div>
+    <div id="right">
+        <h2>Click the element to edit <i class="fa-solid fa-pen-to-square icon"></i></h2>
+    </div>
+   
+
+    </div> <aside id="props" class="hidden">
+     
+  <h3>Edit Properties <div style="text-align:right;">
+      <div type="button" id="cancelBtn">x</div> </h3>
+     
+    </div>
+  <form id="propForm"></form>
+</aside>
+    <script>
+        let lists = document.getElementsByClassName("list");
+        let rightBox = document.getElementById("right");
+        let leftBox = document.getElementById("left");
+
+        for(list of lists){
+            list.addEventListener("dragstart", function(e){
+                let selected = e.target;
+
+                rightBox.addEventListener("dragover", function(e){
+                    e.preventDefault();
+                })
+                rightBox.addEventListener("drop", function(e){
+                    rightBox.appendChild(selected);
+                    selected= null;
+                })
+                leftBox.addEventListener("dragover", function(e){
+                    e.preventDefault();
+                });
+                leftBox.addEventListener("drop", function(e){
+                    leftBox.appendChild(selected);
+                    selected= null;
+                })
+            })
+        }
+let selectedEl = null;
+const props = document.getElementById('props');
+const propForm = document.getElementById('propForm');
+
+
+rightBox.addEventListener('click', e => {
+  if (e.target.classList.contains('list')) {
+    selectElement(e.target);
+  }
+});
+
+function selectElement(el) {
+  selectedEl = el;
+  renderFormFor(el);
+  props.classList.remove('hidden');
+}
+function renderFormFor(el) {
+  propForm.innerHTML = '';
+  const tag = el.tagName.toLowerCase();
+
+  if (tag === 'div') {
+    propForm.innerHTML = `
+      <label>Text: <input name="text" value="${el.textContent}"></label>
+      <label>Font Size (px): <input type="number" name="fontSize" value="${parseInt(getComputedStyle(el).fontSize)}"></label>
+      <label>Color: <input type="color" name="color" value="${rgbToHex(getComputedStyle(el).color)}"></label>
+    `;
+  } else if (tag === 'button') {
+    propForm.innerHTML = `
+      <label>Text: <input name="text" value="${el.textContent}"></label>
+      <label>Bg Color: <input type="color" name="backgroundColor" value="${rgbToHex(getComputedStyle(el).backgroundColor)}"></label>
+      <label>Text Color: <input type="color" name="color" value="${rgbToHex(getComputedStyle(el).color)}"></label>
+    `;
+  } else if (tag === 'img') {
+    propForm.innerHTML = `
+      <label>Image URL: <input name="src" value="${el.src}"></label>
+      <label>Width (px): <input type="number" name="width" value="${el.width}"></label>
+      <label>Height (px): <input type="number" name="height" value="${el.height}"></label>
+    `;
+  }
+
+  propForm.querySelectorAll('input').forEach(input =>
+    input.addEventListener('input', () =>
+      updateElProperty(el, input.name, input.value)
+    )
+  );
+}
+function updateElProperty(el, name, value) {
+  if (name === 'text') {
+    el.textContent = value;
+  } else if (name === 'src') {
+    el.src = value;
+  } else if (name === 'fontSize') {
+    el.style.fontSize = value + 'px';
+  } else if (name === 'width' || name === 'height') {
+    el.style[name] = value + 'px';
+  } else {
+    el.style[name] = value;
+  }
+}
+function rgbToHex(rgb) {
+  const [r, g, b] = rgb.match(/\d+/g).map(Number);
+  return "#" + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+}
+const cancelBtn = document.getElementById('cancelBtn');
+
+cancelBtn.addEventListener('click', () => {
+  props.classList.add('hidden');     
+  if (selectedEl) {
+    selectedEl.classList.remove('selected');  
+    selectedEl = null;
+  }
+});
+    </script>
+    
+</body>
+</html>
